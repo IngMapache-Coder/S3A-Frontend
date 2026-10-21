@@ -1,0 +1,741 @@
+/* ============================================================
+   S3A — Sistema de Asistencia Digital "Amigo Académico"
+   Estilo Institucional (Inspirado en el Portal Universitario Divisist2 / UFPS)
+   ============================================================ */
+
+:root {
+  --primary-red: #C62828;
+  --primary-red-hover: #B71C1C;
+  --primary-red-dark: #8E0000;
+  --primary-red-light: #FFEBEE;
+  
+  --ufps-green: #00A65A;
+  --ufps-green-dark: #008D4C;
+  --ufps-green-light: #E8F5E9;
+  
+  --card-top-blue: #0073B7;
+  --card-top-red: #D32F2F;
+  --card-top-yellow: #F39C12;
+  
+  --bg-main: #F4F6F9;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+  --bg-sidebar-hover: #F8F9FA;
+  
+  --border-light: #E0E0E0;
+  --border-card: #D2D6DE;
+  
+  --text-primary: #212529;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --text-light: #FFFFFF;
+  
+  --font-family: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F1F1;
+}
+::-webkit-scrollbar-thumb {
+  background: #C1C1C1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A8A8;
+}
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+   ============================================================ */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* HEADER SUPERIOR INSTITUCIONAL (Rojo #C62828) */
+.header-navbar {
+  height: 52px;
+  background-color: var(--primary-red);
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-title {
+  font-size: 1.22rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.22);
+  padding: 2px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.menu-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.header-icon-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.header-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.badge-counter {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  background: #FF5252;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary-red);
+}
+
+.header-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.header-user-profile:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: #EEEEEE;
+}
+
+.header-user-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   CUERPO PRINCIPAL (Sidebar + Contenido)
+   ============================================================ */
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 52px);
+}
+
+/* SIDEBAR IZQUIERDA */
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease, transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+.sidebar-user-panel {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #ECEFF1;
+}
+
+.sidebar-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #CFD8DC;
+  background: #ECEFF1;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-user-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #263238;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: 0.74rem;
+  color: #546E7A;
+  font-weight: 500;
+}
+
+.sidebar-nav-header {
+  padding: 14px 16px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #90A4AE;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.sidebar-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-item {
+  position: relative;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  color: #37474F;
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: var(--bg-sidebar-hover);
+  color: var(--primary-red);
+}
+
+.sidebar-link.active {
+  background-color: var(--primary-red);
+  color: white !important;
+  font-weight: 600;
+  border-left-color: var(--primary-red-dark);
+}
+
+.sidebar-link.active .sidebar-icon {
+  color: white;
+}
+
+.sidebar-link-content {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.sidebar-icon {
+  width: 18px;
+  height: 18px;
+  color: #607D8B;
+  transition: color 0.15s;
+}
+
+.badge-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+}
+
+.badge-tag.green {
+  background-color: var(--ufps-green);
+  color: white;
+}
+
+.badge-tag.red {
+  background-color: var(--primary-red);
+  color: white;
+}
+
+.badge-tag.gray {
+  background-color: #ECEFF1;
+  color: #455A64;
+}
+
+/* ============================================================
+   ÁREA DE CONTENIDO
+   ============================================================ */
+.content-area {
+  flex: 1;
+  padding: 20px 24px 40px;
+  background-color: var(--bg-main);
+  overflow-y: auto;
+}
+
+.page-breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #E0E0E0;
+  padding-bottom: 12px;
+}
+
+.page-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #212529;
+  letter-spacing: -0.3px;
+}
+
+.page-date {
+  font-size: 0.82rem;
+  color: #616161;
+  font-weight: 500;
+}
+
+/* ============================================================
+   TARJETA BLANCA INSTITUCIONAL CON BORDE SUPERIOR DE COLOR
+   ============================================================ */
+.ufps-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-card);
+  border-top: 3px solid var(--card-top-blue);
+  margin-bottom: 24px;
+}
+
+.ufps-card.card-red {
+  border-top-color: var(--card-top-red);
+}
+
+.ufps-card.card-green {
+  border-top-color: var(--ufps-green);
+}
+
+.card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #EEEEEE;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-body {
+  padding: 20px 22px;
+}
+
+/* ============================================================
+   TARJETAS VERDES INFORMATIVAS (Exacto a las 4 del screenshot)
+   ============================================================ */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.status-card-green {
+  background: linear-gradient(135deg, #00A65A 0%, #008D4C 100%);
+  color: white;
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  min-height: 100px;
+  cursor: default;
+}
+
+.status-card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  z-index: 2;
+}
+
+.status-check-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.status-text-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.status-text-sub {
+  font-size: 0.74rem;
+  opacity: 0.88;
+  margin-top: 4px;
+}
+
+/* Marca de agua / icono translúcido a la derecha */
+.status-watermark-icon {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+
+/* ============================================================
+   COMPONENTES DE TABLA INSTITUCIONAL
+   ============================================================ */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ufps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.ufps-table th {
+  background-color: #F8F9FA;
+  color: #495057;
+  font-weight: 700;
+  padding: 11px 14px;
+  border-bottom: 2px solid #DEE2E6;
+  white-space: nowrap;
+}
+
+.ufps-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #ECEFF1;
+  color: #333333;
+  vertical-align: middle;
+}
+
+.ufps-table tr:hover {
+  background-color: #F8FBFD;
+}
+
+/* ============================================================
+   BOTONES INSTITUCIONALES
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none;
+}
+
+.btn-red {
+  background-color: var(--primary-red);
+  color: white;
+}
+.btn-red:hover {
+  background-color: var(--primary-red-hover);
+}
+
+.btn-green {
+  background-color: var(--ufps-green);
+  color: white;
+}
+.btn-green:hover {
+  background-color: var(--ufps-green-dark);
+}
+
+.btn-secondary {
+  background-color: #ECEFF1;
+  color: #37474F;
+  border-color: #CFD8DC;
+}
+.btn-secondary:hover {
+  background-color: #CFD8DC;
+}
+
+.btn-outline-red {
+  background: transparent;
+  border-color: var(--primary-red);
+  color: var(--primary-red);
+}
+.btn-outline-red:hover {
+  background: var(--primary-red);
+  color: white;
+}
+
+/* ============================================================
+   FORMULARIOS Y CAMPOS
+   ============================================================ */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #37474F;
+  margin-bottom: 6px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  border: 1px solid #CED4DA;
+  border-radius: var(--radius-sm);
+  background-color: white;
+  color: #333333;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #80BDFF;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.2);
+}
+
+/* ============================================================
+   CANVAS DE FIRMA (Signature Pad)
+   ============================================================ */
+.signature-box {
+  background: white;
+  border: 2px dashed #B0BEC5;
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.signature-canvas {
+  width: 100%;
+  height: 180px;
+  display: block;
+  touch-action: none;
+}
+
+.signature-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #90A4AE;
+  font-size: 0.88rem;
+  font-weight: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================
+   MODALES
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 540px;
+  border-top: 4px solid var(--primary-red);
+  overflow: hidden;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ECEFF1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.modal-body {
+  padding: 20px 22px;
+}
+
+.modal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid #ECEFF1;
+  background-color: #F8F9FA;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 52px;
+    bottom: 0;
+    left: 0;
+    z-index: 90;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    width: 250px;
+  }
+  
+  .content-area {
+    padding: 14px 14px 30px;
+  }
+  
+  .brand-title span.full-title {
+    display: none;
+  }
+  
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}

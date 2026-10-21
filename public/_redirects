@@ -1,0 +1,11 @@
+# Proxy de API → Cloudflare Worker (backend)
+/auth/*        https://backend.amigoacademicoufps.workers.dev/auth/:splat        200
+/usuarios/*    https://backend.amigoacademicoufps.workers.dev/usuarios/:splat    200
+/materias/*    https://backend.amigoacademicoufps.workers.dev/materias/:splat    200
+/sesiones/*    https://backend.amigoacademicoufps.workers.dev/sesiones/:splat    200
+/asistencias/* https://backend.amigoacademicoufps.workers.dev/asistencias/:splat 200
+/firmas/*      https://backend.amigoacademicoufps.workers.dev/firmas/:splat      200
+/reportes/*    https://backend.amigoacademicoufps.workers.dev/reportes/:splat    200
+
+# SPA fallback — siempre al final
+/*             /index.html                                                        200
