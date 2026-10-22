@@ -1,4 +1,8 @@
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const DEFAULT_BACKEND_URL = 'https://backend.amigoacademicoufps.workers.dev';
+const API_BASE = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? '' : DEFAULT_BACKEND_URL)
+).replace(/\/$/, '');
 
 export interface User {
   id: string;
