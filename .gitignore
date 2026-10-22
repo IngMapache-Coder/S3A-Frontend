@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Workspace / local pnpm configuration
+pnpm-workspace.yaml
