@@ -7,6 +7,7 @@ import {
   PencilSquareIcon,
   ChevronRightIcon,
   UserCircleIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 import type { User } from '../api/client.js';
 
@@ -111,6 +112,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </li>
 
+        <li className="sidebar-item">
+          <div
+            className={`sidebar-link ${activeTab === 'eventos' ? 'active' : ''}`}
+            onClick={() => onSelectTab('eventos')}
+          >
+            <div className="sidebar-link-content">
+              <CalendarDaysIcon className="sidebar-icon" style={{ width: '18px', height: '18px' }} />
+              <span>Eventos y Cursos</span>
+            </div>
+            <span className="badge-tag green">QR Único</span>
+          </div>
+        </li>
+
+        <li className="sidebar-item">
+          <div
+            className={`sidebar-link ${activeTab === 'reportes' ? 'active' : ''}`}
+            onClick={() => onSelectTab('reportes')}
+          >
+            <div className="sidebar-link-content">
+              <DocumentChartBarIcon className="sidebar-icon" style={{ width: '18px', height: '18px' }} />
+              <span>Historial de Asistencias</span>
+            </div>
+            <span className="badge-tag green">Historial</span>
+          </div>
+        </li>
+
         {isDirectorOrAdmin && (
           <>
             <li className="sidebar-item">
@@ -136,19 +163,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span>Catálogo de Materias</span>
                 </div>
                 <span className="badge-tag gray">Pensum</span>
-              </div>
-            </li>
-
-            <li className="sidebar-item">
-              <div
-                className={`sidebar-link ${activeTab === 'reportes' ? 'active' : ''}`}
-                onClick={() => onSelectTab('reportes')}
-              >
-                <div className="sidebar-link-content">
-                  <DocumentChartBarIcon className="sidebar-icon" style={{ width: '18px', height: '18px' }} />
-                  <span>Auditoría y Reportes</span>
-                </div>
-                <span className="badge-tag green">Excel</span>
               </div>
             </li>
           </>

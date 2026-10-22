@@ -40,6 +40,37 @@ export interface Asistencia {
   fechaHora?: string;
 }
 
+export interface Evento {
+  id: string;
+  codigo: string;
+  nombre: string;
+  descripcion?: string | null;
+  lugar?: string | null;
+  facilitador?: string | null;
+  ponente?: string | null;
+  creadaPorId: string;
+  creadaPorNombre?: string;
+  estado: 'activa' | 'cerrada';
+  fechaInicio: string;
+  fechaCierre?: string | null;
+  totalAsistencias?: number;
+  qrUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AsistenciaEvento {
+  id: string;
+  eventoId: string;
+  eventoNombre?: string;
+  eventoCodigo?: string;
+  nombreEstudiante: string;
+  codigoEstudiante: string;
+  correoEstudiante?: string | null;
+  firmaUrl: string;
+  fechaHora: string;
+}
+
 export const authStorage = {
   getToken: () => localStorage.getItem('s3a_token'),
   setToken: (token: string) => localStorage.setItem('s3a_token', token),
@@ -185,6 +216,23 @@ export const api = {
         `/reportes/asistencias?${params.toString()}`
       );
     },
+    consultarEventos: async (filtros: {
+      desde?: string;
+      hasta?: string;
+      eventoId?: string;
+      codigoEstudiante?: string;
+      nombreEstudiante?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (filtros.desde) params.append('desde', filtros.desde);
+      if (filtros.hasta) params.append('hasta', filtros.hasta);
+      if (filtros.eventoId) params.append('eventoId', filtros.eventoId);
+      if (filtros.codigoEstudiante) params.append('codigoEstudiante', filtros.codigoEstudiante);
+      if (filtros.nombreEstudiante) params.append('nombreEstudiante', filtros.nombreEstudiante);
+      return request<{ success: boolean; data: AsistenciaEvento[]; count: number }>(
+        `/reportes/eventos?${params.toString()}`
+      );
+    },
   },
 
   firmas: {
@@ -192,5 +240,68 @@ export const api = {
       const token = authStorage.getToken();
       return `${API_BASE}/firmas/${asistenciaId}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
     },
+  },
+
+  eventos: {
+    list: async () =>
+      request<{ success: boolean; data: Evento[]; count: number }>('/eventos'),
+    getById: async (id: string) =>
+      request<{ success: boolean; data: Evento }>(`/eventos/${id}`),
+    create: async (data: {
+      nombre: string;
+      descripcion?: string;
+      lugar?: string;
+      facilitador?: string;
+      ponente?: string;
+      codigo?: string;
+    }) =>
+      request<{ success: boolean; data: Evento; message: string }>('/eventos', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: async (
+      id: string,
+      data: {
+        nombre?: string;
+        descripcion?: string;
+        lugar?: string;
+        facilitador?: string;
+        ponente?: string;
+        codigo?: string;
+      }
+    ) =>
+      request<{ success: boolean; data: Evento; message: string }>(`/eventos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    cerrar: async (id: string) =>
+      request<{ success: boolean; data: Evento; message: string }>(`/eventos/${id}/cerrar`, {
+        method: 'PATCH',
+      }),
+    reabrir: async (id: string) =>
+      request<{ success: boolean; data: Evento; message: string }>(`/eventos/${id}/reabrir`, {
+        method: 'PATCH',
+      }),
+    delete: async (id: string) =>
+      request<{ success: boolean; message: string }>(`/eventos/${id}`, {
+        method: 'DELETE',
+      }),
+    listarAsistencias: async (eventoId: string) =>
+      request<{ success: boolean; data: AsistenciaEvento[]; count: number }>(
+        `/eventos/${eventoId}/asistencias`
+      ),
+    verificar: async (codigo: string) =>
+      request<{ success: boolean; data: Evento }>(`/eventos/verificar/${codigo}`),
+    registrarAsistencia: async (data: {
+      codigo_evento: string;
+      nombre_estudiante: string;
+      codigo_estudiante: string;
+      correo_estudiante?: string;
+      firma_base64: string;
+    }) =>
+      request<{ success: boolean; data: AsistenciaEvento; message: string }>('/eventos/asistencias', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
   },
 };

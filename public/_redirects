@@ -6,6 +6,7 @@
 /asistencias/* https://backend.amigoacademicoufps.workers.dev/asistencias/:splat 200
 /firmas/*      https://backend.amigoacademicoufps.workers.dev/firmas/:splat      200
 /reportes/*    https://backend.amigoacademicoufps.workers.dev/reportes/:splat    200
+/eventos/*     https://backend.amigoacademicoufps.workers.dev/eventos/:splat     200
 
 # SPA fallback — siempre al final
 /*             /index.html                                                        200

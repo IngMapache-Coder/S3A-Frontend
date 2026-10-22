@@ -13,6 +13,7 @@ export default defineConfig({
       '/asistencias': { target: 'http://localhost:8787', changeOrigin: true },
       '/firmas':      { target: 'http://localhost:8787', changeOrigin: true },
       '/reportes':    { target: 'http://localhost:8787', changeOrigin: true },
+      '/eventos':     { target: 'http://localhost:8787', changeOrigin: true },
     },
   },
 });

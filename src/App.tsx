@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar.js';
 import { Sidebar } from './components/Sidebar.js';
 import { LoginView } from './views/LoginView.js';
 import { TutorSalaView } from './views/TutorSalaView.js';
+import { EventosView } from './views/EventosView.js';
 import { EstudianteFirmaView } from './views/EstudianteFirmaView.js';
 import { TutoresView } from './views/TutoresView.js';
 import { MateriasView } from './views/MateriasView.js';
@@ -16,14 +17,17 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('sala');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [codigoSalaEstudiante, setCodigoSalaEstudiante] = useState<string>('');
+  const [tipoEstudiante, setTipoEstudiante] = useState<string>('');
   const [modoEstudianteDirecto, setModoEstudianteDirecto] = useState<boolean>(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codigo = params.get('codigo');
     const tab = params.get('tab');
+    const tipo = params.get('tipo');
 
     if (codigo) setCodigoSalaEstudiante(codigo);
+    if (tipo) setTipoEstudiante(tipo);
 
     if (tab === 'estudiante' || codigo) {
       setModoEstudianteDirecto(true);
@@ -50,8 +54,9 @@ export const App: React.FC = () => {
     setModoEstudianteDirecto(false);
   };
 
-  const handleAbrirComoEstudiante = (codigo: string) => {
+  const handleAbrirComoEstudiante = (codigo: string, tipo?: string) => {
     setCodigoSalaEstudiante(codigo);
+    if (tipo) setTipoEstudiante(tipo);
     setActiveTab('estudiante');
   };
 
@@ -74,6 +79,7 @@ export const App: React.FC = () => {
         <main className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EstudianteFirmaView
             codigoInicial={codigoSalaEstudiante}
+            tipoInicial={tipoEstudiante}
             onVolver={() => setModoEstudianteDirecto(false)}
           />
         </main>
@@ -123,12 +129,16 @@ export const App: React.FC = () => {
 
         <main className="content-area">
           {activeTab === 'sala' && (
-            <TutorSalaView onAbrirComoEstudiante={handleAbrirComoEstudiante} />
+            <TutorSalaView onAbrirComoEstudiante={(cod) => handleAbrirComoEstudiante(cod, 'sala')} />
+          )}
+          {activeTab === 'eventos' && (
+            <EventosView onAbrirComoEstudiante={handleAbrirComoEstudiante} />
           )}
           {activeTab === 'estudiante' && (
             <EstudianteFirmaView
               codigoInicial={codigoSalaEstudiante}
-              onVolver={() => setActiveTab('sala')}
+              tipoInicial={tipoEstudiante}
+              onVolver={() => setActiveTab(tipoEstudiante === 'evento' ? 'eventos' : 'sala')}
             />
           )}
           {activeTab === 'tutores' && <TutoresView currentUser={user} />}
