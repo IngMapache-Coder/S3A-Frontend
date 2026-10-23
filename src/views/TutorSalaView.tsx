@@ -32,6 +32,10 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
   const [firmaModalEstudiante, setFirmaModalEstudiante] = useState<string | null>(null);
   const [proyectorModo, setProyectorModo] = useState(false);
   const pollingRef = useRef<number | null>(null);
+  const sesionRef = useRef<Sesion | null>(null);
+
+  // Mantener ref sincronizada con el estado para acceder dentro del interval
+  useEffect(() => { sesionRef.current = sesion; }, [sesion]);
 
   const cargarEstado = async () => {
     try {
@@ -51,9 +55,12 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
     }
   };
 
-  useEffect(() => {
-    cargarEstado();
+  const startPolling = () => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
     pollingRef.current = window.setInterval(async () => {
+      if (document.hidden) return;
+      const currentSesion = sesionRef.current;
+      if (!currentSesion) return; // Sin sesion activa, no consumir peticiones
       try {
         const res = await api.sesiones.activa();
         if (res.data) {
@@ -65,8 +72,31 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
           setAsistencias([]);
         }
       } catch {}
-    }, 4000);
-    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
+    }, 10000);
+  };
+
+  const stopPolling = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  };
+
+  // Polling inteligente: se pausa con pestana oculta y sin sesion activa
+  useEffect(() => {
+    cargarEstado().then(() => startPolling());
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        cargarEstado();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const handleAbrirSesion = async () => {
@@ -76,6 +106,7 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
       const res = await api.sesiones.abrir();
       setSesion(res.data);
       await cargarEstado();
+      startPolling(); // Iniciar polling al abrir sesion
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al abrir sesión');
     } finally {
@@ -92,6 +123,7 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
       await api.sesiones.cerrar(sesion.id);
       setSesion(null);
       setAsistencias([]);
+      stopPolling(); // Detener polling al cerrar sesion
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al cerrar sesión');
     } finally {

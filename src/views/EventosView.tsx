@@ -101,6 +101,7 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
   }, []);
 
   // Polling para la sala del evento seleccionado
+  // Solo activo cuando hay evento seleccionado con estado 'activa' y pestana visible
   useEffect(() => {
     if (!eventoSeleccionado) {
       if (pollingRef.current) {
@@ -112,7 +113,11 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
 
     cargarAsistenciasEvento(eventoSeleccionado.id);
 
+    // Solo hacer polling si el evento esta activo (sala abierta)
+    if (eventoSeleccionado.estado !== 'activa') return;
+
     pollingRef.current = window.setInterval(async () => {
+      if (document.hidden) return; // No hacer peticiones en pestana oculta
       try {
         const [resEvento, resAsis] = await Promise.all([
           api.eventos.getById(eventoSeleccionado.id),
@@ -123,15 +128,23 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
         }
         setAsistencias(resAsis.data || []);
       } catch {}
-    }, 4000);
+    }, 10000);
+
+    const handleVisibility = () => {
+      if (!document.hidden && eventoSeleccionado) {
+        cargarAsistenciasEvento(eventoSeleccionado.id);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
         pollingRef.current = null;
       }
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [eventoSeleccionado?.id]);
+  }, [eventoSeleccionado?.id, eventoSeleccionado?.estado]);
 
   // Manejar creación de nuevo evento
   const handleCrearEvento = async (e: React.FormEvent) => {
@@ -597,7 +610,7 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
                     Esperando que los estudiantes escaneen el codigo QR y firmen...
                   </p>
                   <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                    Los registros se actualizaran automaticamente cada 4 segundos.
+                    Los registros se actualizaran automaticamente cada 10 segundos.
                   </p>
                 </div>
               ) : (
