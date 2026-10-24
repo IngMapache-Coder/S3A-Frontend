@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   QrCodeIcon,
   UserGroupIcon,
@@ -15,6 +15,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { api, type Sesion, type Asistencia } from '../api/client.js';
 import { formatColombiaDateTime, getColombiaHeaderDate } from '../utils/date.js';
 import { exportarAsistenciasExcel, type ExportProgress } from '../utils/excelExport.js';
+import { getPusher } from '../utils/pusher.js';
 
 interface TutorSalaViewProps {
   onAbrirComoEstudiante?: (codigo: string) => void;
@@ -31,11 +32,6 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
   const [firmaModalUrl, setFirmaModalUrl] = useState<string | null>(null);
   const [firmaModalEstudiante, setFirmaModalEstudiante] = useState<string | null>(null);
   const [proyectorModo, setProyectorModo] = useState(false);
-  const pollingRef = useRef<number | null>(null);
-  const sesionRef = useRef<Sesion | null>(null);
-
-  // Mantener ref sincronizada con el estado para acceder dentro del interval
-  useEffect(() => { sesionRef.current = sesion; }, [sesion]);
 
   const cargarEstado = async () => {
     try {
@@ -55,36 +51,20 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
     }
   };
 
-  const startPolling = () => {
-    if (pollingRef.current) clearInterval(pollingRef.current);
-    pollingRef.current = window.setInterval(async () => {
-      if (document.hidden) return;
-      const currentSesion = sesionRef.current;
-      if (!currentSesion) return; // Sin sesion activa, no consumir peticiones
-      try {
-        const res = await api.sesiones.activa();
-        if (res.data) {
-          setSesion(res.data);
-          const asisRes = await api.sesiones.listarAsistencias(res.data.id);
-          setAsistencias(asisRes.data || []);
-        } else {
-          setSesion(null);
-          setAsistencias([]);
-        }
-      } catch {}
-    }, 10000);
-  };
-
-  const stopPolling = () => {
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-  };
-
-  // Polling inteligente: se pausa con pestana oculta y sin sesion activa
+  // Suscripcion a eventos en tiempo real via Pusher (cero polling)
   useEffect(() => {
-    cargarEstado().then(() => startPolling());
+    cargarEstado();
+
+    const pusher = getPusher();
+    const channel = pusher.subscribe('sala-asesoria');
+
+    const handleActualizacion = () => {
+      cargarEstado();
+    };
+
+    channel.bind('sesion-abierta', handleActualizacion);
+    channel.bind('sesion-cerrada', handleActualizacion);
+    channel.bind('asistencia-registrada', handleActualizacion);
 
     const handleVisibility = () => {
       if (!document.hidden) {
@@ -94,7 +74,10 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      stopPolling();
+      channel.unbind('sesion-abierta', handleActualizacion);
+      channel.unbind('sesion-cerrada', handleActualizacion);
+      channel.unbind('asistencia-registrada', handleActualizacion);
+      pusher.unsubscribe('sala-asesoria');
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
@@ -106,7 +89,6 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
       const res = await api.sesiones.abrir();
       setSesion(res.data);
       await cargarEstado();
-      startPolling(); // Iniciar polling al abrir sesion
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al abrir sesión');
     } finally {
@@ -123,7 +105,6 @@ export const TutorSalaView = ({ onAbrirComoEstudiante: _ }: TutorSalaViewProps =
       await api.sesiones.cerrar(sesion.id);
       setSesion(null);
       setAsistencias([]);
-      stopPolling(); // Detener polling al cerrar sesion
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al cerrar sesión');
     } finally {

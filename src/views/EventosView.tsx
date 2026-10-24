@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   QrCodeIcon,
   UserGroupIcon,
@@ -29,6 +29,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { api, type Evento, type AsistenciaEvento } from '../api/client.js';
 import { formatColombiaDateTime, getColombiaHeaderDate } from '../utils/date.js';
 import { exportarAsistenciasEventoExcel, type ExportProgress } from '../utils/excelExport.js';
+import { getPusher } from '../utils/pusher.js';
 
 interface EventosViewProps {
   onAbrirComoEstudiante?: (codigo: string, tipo?: string) => void;
@@ -67,8 +68,6 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'activa' | 'cerrada'>('todos');
 
-  const pollingRef = useRef<number | null>(null);
-
   // Cargar lista de eventos
   const cargarEventos = async () => {
     try {
@@ -96,39 +95,61 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
     }
   };
 
+  // Suscripcion a eventos globales (crear, cerrar, eliminar eventos)
   useEffect(() => {
     cargarEventos();
+
+    const pusher = getPusher();
+    const channel = pusher.subscribe('eventos');
+
+    const handleActualizacion = () => {
+      cargarEventos();
+    };
+
+    channel.bind('evento-creado', handleActualizacion);
+    channel.bind('evento-actualizado', handleActualizacion);
+    channel.bind('evento-cerrado', handleActualizacion);
+    channel.bind('evento-reabierto', handleActualizacion);
+    channel.bind('evento-eliminado', handleActualizacion);
+
+    return () => {
+      channel.unbind('evento-creado', handleActualizacion);
+      channel.unbind('evento-actualizado', handleActualizacion);
+      channel.unbind('evento-cerrado', handleActualizacion);
+      channel.unbind('evento-reabierto', handleActualizacion);
+      channel.unbind('evento-eliminado', handleActualizacion);
+      pusher.unsubscribe('eventos');
+    };
   }, []);
 
-  // Polling para la sala del evento seleccionado
-  // Solo activo cuando hay evento seleccionado con estado 'activa' y pestana visible
+  // Suscripcion a la sala del evento seleccionado en tiempo real (cero polling)
   useEffect(() => {
-    if (!eventoSeleccionado) {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-      }
-      return;
-    }
+    if (!eventoSeleccionado) return;
 
     cargarAsistenciasEvento(eventoSeleccionado.id);
 
-    // Solo hacer polling si el evento esta activo (sala abierta)
-    if (eventoSeleccionado.estado !== 'activa') return;
+    const pusher = getPusher();
+    const channelName = `evento-${eventoSeleccionado.id}`;
+    const channel = pusher.subscribe(channelName);
 
-    pollingRef.current = window.setInterval(async () => {
-      if (document.hidden) return; // No hacer peticiones en pestana oculta
-      try {
-        const [resEvento, resAsis] = await Promise.all([
-          api.eventos.getById(eventoSeleccionado.id),
-          api.eventos.listarAsistencias(eventoSeleccionado.id),
-        ]);
-        if (resEvento.data) {
-          setEventoSeleccionado(resEvento.data);
-        }
-        setAsistencias(resAsis.data || []);
-      } catch {}
-    }, 10000);
+    const handleAsistencia = () => {
+      cargarAsistenciasEvento(eventoSeleccionado.id);
+    };
+
+    const handleEventoCambio = (data: { evento?: Evento }) => {
+      if (data?.evento) {
+        setEventoSeleccionado(data.evento);
+      } else {
+        api.eventos.getById(eventoSeleccionado.id).then((res) => {
+          if (res.data) setEventoSeleccionado(res.data);
+        }).catch(() => {});
+      }
+    };
+
+    channel.bind('asistencia-evento-registrada', handleAsistencia);
+    channel.bind('evento-actualizado', handleEventoCambio);
+    channel.bind('evento-cerrado', handleEventoCambio);
+    channel.bind('evento-reabierto', handleEventoCambio);
 
     const handleVisibility = () => {
       if (!document.hidden && eventoSeleccionado) {
@@ -138,13 +159,14 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-      }
+      channel.unbind('asistencia-evento-registrada', handleAsistencia);
+      channel.unbind('evento-actualizado', handleEventoCambio);
+      channel.unbind('evento-cerrado', handleEventoCambio);
+      channel.unbind('evento-reabierto', handleEventoCambio);
+      pusher.unsubscribe(channelName);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [eventoSeleccionado?.id, eventoSeleccionado?.estado]);
+  }, [eventoSeleccionado?.id]);
 
   // Manejar creación de nuevo evento
   const handleCrearEvento = async (e: React.FormEvent) => {
@@ -610,7 +632,7 @@ export const EventosView: React.FC<EventosViewProps> = ({ onAbrirComoEstudiante 
                     Esperando que los estudiantes escaneen el codigo QR y firmen...
                   </p>
                   <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                    Los registros se actualizaran automaticamente cada 10 segundos.
+                    Los registros se actualizan automaticamente en tiempo real.
                   </p>
                 </div>
               ) : (
